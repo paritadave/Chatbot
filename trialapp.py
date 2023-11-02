@@ -8,7 +8,7 @@ tokenizer = AutoTokenizer.from_pretrained("EleutherAI/lm-adapter-text-davinci-00
 
 # Load your dataset into memory
 dataset = []
-with open("dataset.txt", "r") as f:
+with open("streamlit/qa_dataset_with_context.txt", "r") as f:
     for line in f:
         dataset.append(line.strip())
 
