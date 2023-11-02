@@ -5,5 +5,5 @@ openai
 llama-index
 nltk
 pypdf
-PyTorch
-TensorFlow >= 2.0
+torch
+TensorFlow1
