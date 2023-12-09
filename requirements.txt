@@ -7,3 +7,6 @@ nltk
 pypdf
 torch
 TensorFlow1
+langchain==0.0.239
+pandas
+tabulate
