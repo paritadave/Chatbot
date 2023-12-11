@@ -10,4 +10,4 @@ TensorFlow1
 langchain
 pandas
 tabulate
-
+huggingface
