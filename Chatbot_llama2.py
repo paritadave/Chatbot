@@ -37,7 +37,7 @@ os.environ['REPLICATE_API_TOKEN'] = replicate_api
 
 # Store LLM generated responses
 if "messages" not in st.session_state.keys():
-    st.session_state.messages = [{"role": "assistant", "content": "How may I assist you today?"}]
+    st.session_state.messages = [{"role": "assistant", "content": "Hey, How may I assist you?"}]
 
 # Display or clear chat messages
 for message in st.session_state.messages:
@@ -45,7 +45,7 @@ for message in st.session_state.messages:
         st.write(message["content"])
 
 def clear_chat_history():
-    st.session_state.messages = [{"role": "assistant", "content": "How may I assist you today?"}]
+    st.session_state.messages = [{"role": "assistant", "content": "Hey, How may I assist you?"}]
 st.sidebar.button('Clear Chat History', on_click=clear_chat_history)
 
 # Function for generating LLaMA2 response
@@ -80,3 +80,34 @@ if st.session_state.messages[-1]["role"] != "assistant":
             placeholder.markdown(full_response)
     message = {"role": "assistant", "content": full_response}
     st.session_state.messages.append(message)
+
+# Drag-and-Drop file upload
+drag_target = st.empty()
+drag_target.title('Drag and Drop Files Here')
+drag_target.image('images/drag_files_here.png')
+
+def handle_dropped_files(files):
+    for file in files:
+        filename = file.name
+        content = file.read().decode('utf-8')
+        st.session_state.messages.append({"role": "user", "content": content})
+        with st.chat_message("user"):
+            st.write(filename)
+            st.write(content)
+
+drag_target.ondrop(handle_dropped_files)
+
+# Generate a new response if last message is not from assistant
+if st.session_state.messages[-1]["role"] != "assistant":
+    with st.chat_message("assistant"):
+        with st.spinner("Thinking..."):
+            response = generate_llama2_response(prompt)
+            placeholder = st.empty()
+            full_response = ''
+            for item in response:
+                full_response += item
+                placeholder.markdown(full_response)
+            placeholder.markdown(full_response)
+    message = {"role": "assistant", "content": full_response}
+    st.session_state.messages.append(message)
+
