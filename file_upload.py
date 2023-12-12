@@ -2,6 +2,10 @@ import streamlit as st
 import pandas as pd
 from io import StringIO
 
+# Page title
+st.set_page_config(page_title='Ask your bot')
+st.title('Ask your Bot')
+
 uploaded_file = st.file_uploader("Choose a file")
 if uploaded_file is not None:
     # To read file as bytes:
