@@ -17,10 +17,6 @@ if file_uploader:
     st.session_state.messages.append({"role": "user", "content": uploaded_file})
     with st.chat_message("user"):
         st.write(uploaded_file)
-# Initialize the session state
-if "messages" not in st.session_state:
-    st.session_state.messages = []
-
 # Hide the code block containing the file name
 st.hide_code(lambda: st.write(st.session_state.messages[-1]))
     
