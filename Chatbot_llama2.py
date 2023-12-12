@@ -84,7 +84,7 @@ if st.session_state.messages[-1]["role"] != "assistant":
 # Drag-and-Drop file upload
 drag_target = st.empty()
 drag_target.title('Drag and Drop Files Here')
-drag_target.image('images/drag_files_here.png')
+#drag_target.image('images/drag_files_here.png')
 
 def handle_dropped_files(files):
     for file in files:
