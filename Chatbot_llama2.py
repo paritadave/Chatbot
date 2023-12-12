@@ -11,7 +11,8 @@ st.set_page_config(page_title="🦙💬 Llama 2 Chatbot Demo")
 # Add file uploader
 file_uploader = st.file_uploader("Upload a file", accept_multiple_files=False)
 if file_uploader:
-    uploaded_file = file_uploader[0].getvalue()
+    #uploaded_file = file_uploader[0].getvalue()
+    uploaded_file = file_uploader.getvalue()
     st.session_state.messages.append({"role": "user", "content": uploaded_file})
     with st.chat_message("user"):
         st.write(uploaded_file)
