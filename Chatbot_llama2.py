@@ -1,4 +1,5 @@
 import streamlit as st
+from streamlit import SessionState
 import replicate
 import os
 import pandas as pd
@@ -14,6 +15,12 @@ if file_uploader:
     #uploaded_file = file_uploader[0].getvalue()
     uploaded_file = file_uploader.getvalue()
     st.session_state.messages.append({"role": "user", "content": uploaded_file})
+# Initialize the session state
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+
+# Hide the code block containing the file name
+st.hide_code(lambda: st.write(st.session_state.messages[-1]))
     with st.chat_message("user"):
         st.write(uploaded_file)
 
