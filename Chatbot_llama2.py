@@ -8,23 +8,27 @@ from io import StringIO
 st.set_page_config(page_title="🦙💬 Llama 2 Chatbot Demo")
 
 #drag and drop
-uploaded_file = st.file_uploader("Choose a file")
-if uploaded_file is not None:
-    # To read file as bytes:
-    bytes_data = uploaded_file.getvalue()
-    st.write(bytes_data)
+# Add file uploader
+file_uploader = st.file_uploader("Upload a file", accept_multiple_files=False)
+if file_uploader:
+    uploaded_file = file_uploader[0].getvalue()
+    st.session_state.messages.append({"role": "user", "content": uploaded_file})
+    with st.chat_message("user"):
+        st.write(uploaded_file)
 
-    # To convert to a string based IO:
-    stringio = StringIO(uploaded_file.getvalue().decode("utf-8"))
-    st.write(stringio)
-
-    # To read file as string:
-    string_data = stringio.read()
-    st.write(string_data)
-
-    # Can be used wherever a "file-like" object is accepted:
-    dataframe = pd.read_csv(uploaded_file)
-    st.write(dataframe)
+# Generate a new response if last message is not from assistant
+if st.session_state.messages[-1]["role"] != "assistant":
+    with st.chat_message("assistant"):
+        with st.spinner("Thinking..."):
+            response = generate_llama2_response(prompt)
+            placeholder = st.empty()
+            full_response = ''
+            for item in response:
+                full_response += item
+                placeholder.markdown(full_response)
+            placeholder.markdown(full_response)
+    message = {"role": "assistant", "content": full_response}
+    st.session_state.messages.append(message)
     
 # Replicate Credentials
 with st.sidebar:
