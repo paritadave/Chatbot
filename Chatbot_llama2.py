@@ -17,7 +17,20 @@ if uploaded_file is not None:
     df = pd.read_csv(uploaded_file)
     st.write("Uploaded File Contents:")
     st.write(df)
-    
+
+    # Extract relevant information from the file (modify this based on your file content)
+    file_content = " ".join(df.iloc[:, 0].astype(str))  # Assuming the first column contains text data
+
+    # Update the chatbot prompt with file content
+    chatbot_prompt = f"Based on the uploaded file, the user is asking: {file_content}"
+
+    # Generate a new response using the updated prompt
+    response = generate_llama2_response(chatbot_prompt)
+
+    # Display the chatbot's response
+    with st.chat_message("assistant"):
+        st.write(response)
+        
 # Replicate Credentials
 with st.sidebar:
     st.title('🦙💬 Llama 2 Chatbot Demo')
