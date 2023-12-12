@@ -1,10 +1,31 @@
 import streamlit as st
 import replicate
 import os
+import pandas as pd
+from io import StringIO
 
 # App title
 st.set_page_config(page_title="🦙💬 Llama 2 Chatbot Demo")
 
+#drag and drop
+uploaded_file = st.file_uploader("Choose a file")
+if uploaded_file is not None:
+    # To read file as bytes:
+    bytes_data = uploaded_file.getvalue()
+    st.write(bytes_data)
+
+    # To convert to a string based IO:
+    stringio = StringIO(uploaded_file.getvalue().decode("utf-8"))
+    st.write(stringio)
+
+    # To read file as string:
+    string_data = stringio.read()
+    st.write(string_data)
+
+    # Can be used wherever a "file-like" object is accepted:
+    dataframe = pd.read_csv(uploaded_file)
+    st.write(dataframe)
+    
 # Replicate Credentials
 with st.sidebar:
     st.title('🦙💬 Llama 2 Chatbot Demo')
@@ -81,33 +102,5 @@ if st.session_state.messages[-1]["role"] != "assistant":
     message = {"role": "assistant", "content": full_response}
     st.session_state.messages.append(message)
 
-# Drag-and-Drop file upload
-drag_target = st.empty()
-drag_target.title('Drag and Drop Files Here')
-#drag_target.image('images/drag_files_here.png')
 
-def handle_dropped_files(files):
-    for file in files:
-        filename = file.name
-        content = file.read().decode('utf-8')
-        st.session_state.messages.append({"role": "user", "content": content})
-        with st.chat_message("user"):
-            st.write(filename)
-            st.write(content)
-
-drag_target.ondrop(handle_dropped_files)
-
-# Generate a new response if last message is not from assistant
-if st.session_state.messages[-1]["role"] != "assistant":
-    with st.chat_message("assistant"):
-        with st.spinner("Thinking..."):
-            response = generate_llama2_response(prompt)
-            placeholder = st.empty()
-            full_response = ''
-            for item in response:
-                full_response += item
-                placeholder.markdown(full_response)
-            placeholder.markdown(full_response)
-    message = {"role": "assistant", "content": full_response}
-    st.session_state.messages.append(message)
 
