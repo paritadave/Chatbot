@@ -8,29 +8,15 @@ from io import StringIO
 # App title
 st.set_page_config(page_title="🦙💬 Llama 2 Chatbot Demo")
 
-#drag and drop
-# Add file uploader
-file_uploader = st.file_uploader("Upload a file", accept_multiple_files=False)
-if file_uploader:
-    #uploaded_file = file_uploader[0].getvalue()
-    uploaded_file = file_uploader.getvalue()
-    st.session_state.messages.append({"role": "user", "content": uploaded_file})
-    with st.chat_message("user"):
-        st.write(uploaded_file)
+# File upload widget
+uploaded_file = st.file_uploader("Upload a file", type=["csv", "txt", "xlsx"])
 
-# Generate a new response if last message is not from assistant
-if st.session_state.messages[-1]["role"] != "assistant":
-    with st.chat_message("assistant"):
-        with st.spinner("Thinking..."):
-            response = generate_llama2_response(prompt)
-            placeholder = st.empty()
-            full_response = ''
-            for item in response:
-                full_response += item
-                placeholder.markdown(full_response)
-            placeholder.markdown(full_response)
-    message = {"role": "assistant", "content": full_response}
-    st.session_state.messages.append(message)
+# Process the uploaded file when the user drops a file
+if uploaded_file is not None:
+    # Read the file into a Pandas DataFrame (adjust this based on your file type)
+    df = pd.read_csv(uploaded_file)
+    st.write("Uploaded File Contents:")
+    st.write(df)
     
 # Replicate Credentials
 with st.sidebar:
@@ -94,7 +80,7 @@ if prompt := st.chat_input(disabled=not replicate_api):
     with st.chat_message("user"):
         st.write(prompt)
 
-# Generate a new response if last message is not from assistant
+# Generate a new response if the last message is not from the assistant
 if st.session_state.messages[-1]["role"] != "assistant":
     with st.chat_message("assistant"):
         with st.spinner("Thinking..."):
@@ -107,6 +93,5 @@ if st.session_state.messages[-1]["role"] != "assistant":
             placeholder.markdown(full_response)
     message = {"role": "assistant", "content": full_response}
     st.session_state.messages.append(message)
-
 
 
