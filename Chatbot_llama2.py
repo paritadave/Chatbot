@@ -10,27 +10,7 @@ st.set_page_config(page_title="🦙💬 Llama 2 Chatbot Demo")
 
 # File upload widget
 uploaded_file = st.file_uploader("Upload a file", type=["csv", "txt", "xlsx"])
-
-# Process the uploaded file when the user drops a file
-if uploaded_file is not None:
-    # Read the file into a Pandas DataFrame (adjust this based on your file type)
-    df = pd.read_csv(uploaded_file)
-    st.write("Uploaded File Contents:")
-    st.write(df)
-
-    # Extract relevant information from the file (modify this based on your file content)
-    file_content = " ".join(df.iloc[:, 0].astype(str))  # Assuming the first column contains text data
-
-    # Update the chatbot prompt with file content
-    chatbot_prompt = f"Based on the uploaded file, the user is asking: {file_content}"
-
-    # Generate a new response using the updated prompt
-    response = generate_llama2_response(chatbot_prompt)
-
-    # Display the chatbot's response
-    with st.chat_message("assistant"):
-        st.write(response)
-        
+   
 # Replicate Credentials
 with st.sidebar:
     st.title('🦙💬 Llama 2 Chatbot Demo')
@@ -92,6 +72,26 @@ if prompt := st.chat_input(disabled=not replicate_api):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.write(prompt)
+
+# Process the uploaded file when the user drops a file
+if uploaded_file is not None:
+    # Read the file into a Pandas DataFrame (adjust this based on your file type)
+    df = pd.read_csv(uploaded_file)
+    st.write("Uploaded File Contents:")
+    st.write(df)
+
+    # Extract relevant information from the file (modify this based on your file content)
+    file_content = " ".join(df.iloc[:, 0].astype(str))  # Assuming the first column contains text data
+
+    # Update the chatbot prompt with file content
+    chatbot_prompt = f"Based on the uploaded file, the user is asking: {file_content}"
+
+    # Generate a new response using the updated prompt
+    response = generate_llama2_response(chatbot_prompt)
+
+    # Display the chatbot's response
+    with st.chat_message("assistant"):
+        st.write(response)
 
 # Generate a new response if the last message is not from the assistant
 if st.session_state.messages[-1]["role"] != "assistant":
