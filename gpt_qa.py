@@ -1,6 +1,5 @@
 import streamlit as st
 from transformers import GPT2LMHeadModel, GPT2Tokenizer
-import pandas as pd
 
 # Load pre-trained GPT-2 model and tokenizer
 model_name = "gpt2"
@@ -8,21 +7,18 @@ model = GPT2LMHeadModel.from_pretrained(model_name)
 tokenizer = GPT2Tokenizer.from_pretrained(model_name)
 
 # App title
-st.set_page_config(page_title="🤖 File Q&A Chatbot")
+st.set_page_config(page_title="🤖 Document Q&A Demo")
 
 # File upload widget
-uploaded_file = st.file_uploader("Upload a file", type=["csv", "txt", "xlsx"])
-
-# User-provided prompt
-prompt = st.text_input("Type your message here:")
+uploaded_file = st.file_uploader("Upload a document", type=["txt", "pdf"])
 
 # GPT-2 model parameters
 max_length = st.slider('Max response length', min_value=10, max_value=200, value=50)
 temperature = st.slider('Temperature', min_value=0.1, max_value=2.0, value=1.0)
 
 # Function to generate response
-def generate_response(prompt):
-    input_text = f"User: {prompt}\nAssistant:"
+def generate_response(document_text):
+    input_text = f"Document: {document_text}\nQuestion:"
     input_ids = tokenizer.encode(input_text, return_tensors="pt")
 
     # Generate response using GPT-2
@@ -41,24 +37,16 @@ def generate_response(prompt):
     response_text = tokenizer.decode(response_ids[0], skip_special_tokens=True)
     return response_text
 
+# Process the uploaded file when the user drops a file
 if uploaded_file is not None:
-    try:
-        df = pd.read_csv(uploaded_file)
-        st.write("### Uploaded File Contents:")
-        st.write(df)
-        file_content = " ".join(df.iloc[:, 0].astype(str))
-        chatbot_prompt = f"Based on the uploaded file, the user is asking: {file_content}"
-        response = generate_response(chatbot_prompt)
-        st.write("### Assistant's Response")
-        st.write(response)
-    except Exception as e:
-        st.error(f"Error processing the uploaded file: {e}")
-        
-# Generate a response when the user provides a prompt
-if st.button("Submit") and prompt:
-    # Generate response based on the user's prompt
-    response = generate_response(prompt)
+    # Read the file content
+    document_text = uploaded_file.read().decode("utf-8")
+    st.write("Uploaded Document Contents:")
+    st.write(document_text)
 
-    # Display the assistant's response
-    st.write("### Assistant's Response")
+    # Generate response based on the document
+    response = generate_response(document_text)
+
+    # Display the chatbot's response
+    st.write("### Answer")
     st.write(response)
