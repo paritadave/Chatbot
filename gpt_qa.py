@@ -41,28 +41,19 @@ def generate_response(prompt):
     response_text = tokenizer.decode(response_ids[0], skip_special_tokens=True)
     return response_text
 
-# Process the uploaded file when the user uploads a file
 if uploaded_file is not None:
-    # Read the file into a Pandas DataFrame (adjust this based on your file type)
-    df = pd.read_csv(uploaded_file)  # Change this line for different file types
-
-    # Display the content of the uploaded file
-    st.write("### Uploaded File Contents:")
-    st.write(df)
-
-    # Extract relevant information from the file (modify this based on your file content)
-    file_content = " ".join(df.iloc[:, 0].astype(str))  # Assuming the first column contains text data
-
-    # Update the chatbot prompt with file content
-    chatbot_prompt = f"Based on the uploaded file, the user is asking: {file_content}"
-
-    # Generate a response using the updated prompt
-    response = generate_response(chatbot_prompt)
-
-    # Display the chatbot's response
-    st.write("### Assistant's Response")
-    st.write(response)
-
+    try:
+        df = pd.read_csv(uploaded_file)
+        st.write("### Uploaded File Contents:")
+        st.write(df)
+        file_content = " ".join(df.iloc[:, 0].astype(str))
+        chatbot_prompt = f"Based on the uploaded file, the user is asking: {file_content}"
+        response = generate_response(chatbot_prompt)
+        st.write("### Assistant's Response")
+        st.write(response)
+    except Exception as e:
+        st.error(f"Error processing the uploaded file: {e}")
+        
 # Generate a response when the user provides a prompt
 if st.button("Submit") and prompt:
     # Generate response based on the user's prompt
