@@ -55,7 +55,7 @@ def clear_chat_history():
 st.sidebar.button('Clear Chat History', on_click=clear_chat_history)
 
 # Function for generating LLaMA2 response
-def generate_llama2_response(prompt_input):
+def generate_llama2_response(llm, prompt_input):
     string_dialogue = "You are a helpful assistant. You do not respond as 'User' or pretend to be 'User'. You only respond once as 'Assistant'."
     for dict_message in st.session_state.messages:
         if dict_message["role"] == "user":
@@ -64,7 +64,7 @@ def generate_llama2_response(prompt_input):
             string_dialogue += "Assistant: " + dict_message["content"] + "\n\n"
     output = replicate.run(llm, 
                            input={"prompt": f"{string_dialogue} {prompt_input} Assistant: ",
-                                  "temperature":temperature, "top_p":top_p, "max_length":max_length, "repetition_penalty":1})
+                                  "temperature": temperature, "top_p": top_p, "max_length": max_length, "repetition_penalty": 1})
     return output
 
 # User-provided prompt
@@ -87,7 +87,7 @@ if uploaded_file is not None:
     chatbot_prompt = f"Based on the uploaded file, the user is asking: {file_content}"
 
     # Generate a new response using the updated prompt
-    response = generate_llama2_response(chatbot_prompt)
+    response = generate_llama2_response(llm,chatbot_prompt)
 
     # Display the chatbot's response
     with st.chat_message("assistant"):
