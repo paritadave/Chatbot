@@ -80,10 +80,9 @@ if uploaded_file is not None:
     st.write("Uploaded File Contents:")
     st.write(df)
 
-    # Extract relevant information from the file (modify this based on your file content)
-    file_content = uploaded_file.read()
-    #file_content = " ".join(df.iloc[:, 0].astype(str))  # Assuming the first column contains text data
-
+    # Extract relevant information from the file
+    file_content = uploaded_file.getvalue()  # Corrected line
+    #file_content = uploaded_file.read()
     # Update the chatbot prompt with file content
     chatbot_prompt = f"Based on the uploaded file, the user is asking: {file_content}"
 
