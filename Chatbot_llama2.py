@@ -97,7 +97,7 @@ if uploaded_file is not None:
 if st.session_state.messages[-1]["role"] != "assistant":
     with st.chat_message("assistant"):
         with st.spinner("Thinking..."):
-            response = generate_llama2_response(prompt)
+            response = generate_llama2_response(llm,prompt)
             placeholder = st.empty()
             full_response = ''
             for item in response:
