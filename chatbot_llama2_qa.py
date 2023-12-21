@@ -91,7 +91,7 @@ if uploaded_file is not None:
     chatbot_prompt = f"Based on the uploaded file, the user is asking: {file_content}"
 
     # Generate a new response using the updated prompt
-    response = generate_llama2_response(chatbot_prompt)
+    response = generate_llama2_response(llm,chatbot_prompt)
 
     # Display the chatbot's response
     with st.chat_message("assistant"):
