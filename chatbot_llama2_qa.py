@@ -45,7 +45,10 @@ os.environ['REPLICATE_API_TOKEN'] = replicate_api
 # Store LLM generated responses
 if "messages" not in st.session_state.keys():
     st.session_state.messages = [{"role": "assistant", "content": "Hey, How may I assist you?"}]
-
+if prompt := st.chat_input(disabled=not replicate_api):
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    with st.chat_message("user"):
+        st.write(prompt)
 # Display or clear chat messages
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
