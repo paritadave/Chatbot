@@ -2,9 +2,9 @@ import streamlit as st
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
 
 # Load a suitable model from Hugging Face Transformers
-model_name = "facebook/bart-base"  # You can choose a different model if needed
-tokenizer = AutoTokenizer.from_pretrained(bert-base-uncased)
-model = AutoModelForSeq2SeqLM.from_pretrained(bert-base-uncased)
+model_name = "facebook/bart-base"  # You can choose a different model if needed #xlm-roberta-base
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
 
 st.title(" File Q&A with Hugging Face Transformers")
 
