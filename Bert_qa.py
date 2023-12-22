@@ -21,7 +21,9 @@ try:
         prompt = f"""Question: {question}\nContext: {article}"""
 
         input_ids = tokenizer.encode(prompt, return_tensors="pt")
-        output = model.generate(input_ids)
+        
+        # Adjust max_length parameter to control the length of the generated sequence
+        output = model.generate(input_ids, max_length=512)  # You can set a larger value
 
         if output is not None and len(output) > 0 and output[0] is not None:
             answer = tokenizer.decode(output[0], skip_special_tokens=True)
