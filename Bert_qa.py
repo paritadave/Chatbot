@@ -22,10 +22,14 @@ try:
 
         input_ids = tokenizer.encode(prompt, return_tensors="pt")
         output = model.generate(input_ids)
-        answer = tokenizer.decode(output[0], skip_special_tokens=True)
 
-        st.write("### Answer")
-        st.write(answer)
+        if output is not None and len(output) > 0 and output[0] is not None:
+            answer = tokenizer.decode(output[0], skip_special_tokens=True)
+            st.write("### Answer")
+            st.write(answer)
+        else:
+            st.write("### Answer")
+            st.write("Sorry, I couldn't generate a valid response.")
 except Exception as e:
     st.write("An error occurred:", str(e))
     # You can customize the error message as needed
