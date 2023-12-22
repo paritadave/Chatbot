@@ -18,15 +18,10 @@ question = st.text_input(
 try:
     if uploaded_file and question:
         article = uploaded_file.read().decode()
-        prompt = f"""Question: {question}\nContext: {article}"""
 
         # Tokenize the prompt
-        input_ids = tokenizer.encode(prompt, return_tensors="pt")
-
-        # Check if the input exceeds the model's maximum sequence length
-        if len(input_ids[0]) > model.config.max_position_embeddings:
-            # Truncate the input to fit within the model's limit
-            input_ids = input_ids[:, :model.config.max_position_embeddings]
+        prompt = f"Question: {question} Context: {article}"
+        input_ids = tokenizer.encode(prompt, return_tensors="pt", max_length=512, truncation=True)
 
         # Generate the output
         output = model.generate(input_ids)
