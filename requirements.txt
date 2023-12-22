@@ -12,3 +12,5 @@ pandas
 tabulate
 huggingface
 replicate
+chromadb
+tiktoken
