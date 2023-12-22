@@ -2,7 +2,7 @@ import streamlit as st
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
 
 # Load a suitable model from Hugging Face Transformers
-model_name = "t5-base-qa"  # You can choose a different model if needed
+model_name = "xlm-roberta-base"  # You can choose a different model if needed
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
 
