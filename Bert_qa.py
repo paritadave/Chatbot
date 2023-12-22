@@ -20,10 +20,16 @@ try:
         article = uploaded_file.read().decode()
         prompt = f"""Question: {question}\nContext: {article}"""
 
+        # Tokenize the prompt
         input_ids = tokenizer.encode(prompt, return_tensors="pt")
-        
-        # Adjust max_length parameter to control the length of the generated sequence
-        output = model.generate(input_ids, max_length=512)  # You can set a larger value
+
+        # Check if the input exceeds the model's maximum sequence length
+        if len(input_ids[0]) > model.config.max_position_embeddings:
+            # Truncate the input to fit within the model's limit
+            input_ids = input_ids[:, :model.config.max_position_embeddings]
+
+        # Generate the output
+        output = model.generate(input_ids)
 
         if output is not None and len(output) > 0 and output[0] is not None:
             answer = tokenizer.decode(output[0], skip_special_tokens=True)
