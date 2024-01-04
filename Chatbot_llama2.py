@@ -15,6 +15,7 @@ with st.sidebar:
     replicate_api = st.text_input('Enter Replicate API token:', type='password')
     # ... (your existing sidebar code)
 
+
 # Store LLM generated responses
 if "messages" not in st.session_state.keys():
     st.session_state.messages = [{"role": "assistant", "content": "Hey, How may I assist you?"}]
@@ -48,6 +49,9 @@ if uploaded_file is not None:
 
     # User-provided prompt
     prompt = st.text_input("Ask something about the file", placeholder="e.g., Can you summarize the file?", key="user_prompt")
+    
+    # Define llm here based on your model selection logic
+    llm = 'a16z-infra/llama7b-v2-chat:4f0a4744c7295c024a1de15e1a63c880d3da035fa1f49bfd344fe076074c8eea'  # Update this line with your logic for selecting the model
     
     if prompt:
         st.session_state.messages.append({"role": "user", "content": prompt})
