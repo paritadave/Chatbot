@@ -12,6 +12,7 @@ uploaded_file = st.file_uploader("Upload a file", type=["csv", "txt", "xlsx"])
 # Replicate Credentials
 with st.sidebar:
     st.title('🦙💬 Llama 2 Chatbot Demo')
+    replicate_api = st.text_input('Enter Replicate API token:', type='password')
     # ... (your existing sidebar code)
 
 # Store LLM generated responses
@@ -46,7 +47,9 @@ if uploaded_file is not None:
     file_content = df.to_string(index=False)  # Use the DataFrame content as the file content
 
     # User-provided prompt
-    if prompt := st.chat_input(disabled=not replicate_api):
+    prompt = st.text_input("Ask something about the file", placeholder="e.g., Can you summarize the file?", key="user_prompt")
+    
+    if prompt:
         st.session_state.messages.append({"role": "user", "content": prompt})
         with st.chat_message("user"):
             st.write(prompt)
