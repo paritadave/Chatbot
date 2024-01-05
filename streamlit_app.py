@@ -1,55 +1,32 @@
 import streamlit as st
-from llama_index import VectorStoreIndex, ServiceContext, Document
-from llama_index.llms import OpenAI
-from transformers import GPT2LMHeadModel, GPT2Tokenizer
+from transformers import pipeline
 
-# Set Streamlit page configuration
-st.set_page_config(
-    page_title="Chat with the Streamlit docs, powered by LlamaIndex",
-    page_icon="🦙",
-    layout="centered",
-    initial_sidebar_state="auto",
-    menu_items=None
-)
+st.set_page_config(page_title="Chat with the Streamlit docs, powered by Hugging Face Transformers", page_icon="🦙", layout="centered", initial_sidebar_state="auto", menu_items=None)
 
-# Set up initial chat messages history
-if "messages" not in st.session_state.keys():
-    st.session_state.messages = [
-        {"role": "assistant", "content": "Ask me a question about Streamlit's open-source Python library!"}
-    ]
+st.title("Chat with the Streamlit docs, powered by Hugging Face Transformers 💬🦙")
+st.info("Check out the full tutorial to build this app in our [blog post](https://blog.streamlit.io/build-a-chatbot-with-custom-data-sources-powered-by-hugging-face-transformers/)", icon="📃")
 
-# Function to load data and create the index
-@st.cache_resource(show_spinner=False)
-def load_data():
-    with st.spinner(text="Loading and indexing the Streamlit docs – hang tight! This should take 1-2 minutes."):
-        reader = SimpleDirectoryReader(input_dir="./data", recursive=True)
-        docs = reader.load_data()
-        service_context = ServiceContext.from_defaults(llm=OpenAI(model="text-davinci-003", temperature=0.5, system_prompt="You are an expert on the Streamlit Python library and your job is to answer technical questions. Assume that all questions are related to the Streamlit Python library. Keep your answers technical and based on facts – do not hallucinate features."))
-        index = VectorStoreIndex.from_documents(docs, service_context=service_context)
-        return index
+# Load the summarization pipeline
+summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
 
-# Load the data and create the index
-index = load_data()
+# User-provided document
+uploaded_file = st.file_uploader("Upload a document", type=["txt", "md", "pdf"])
 
-# Initialize the chat engine
-if "chat_engine" not in st.session_state.keys():
-    st.session_state.chat_engine = index.as_chat_engine(chat_mode="condense_question", verbose=True)
+if uploaded_file is not None:
+    document = uploaded_file.read().decode("utf-8")
+    st.write("Uploaded Document:")
+    st.write(document)
 
-# User-provided prompt
-if prompt := st.text_input("Your question"):
-    st.session_state.messages.append({"role": "user", "content": prompt})
-    with st.chat_message("user"):
-        st.write(prompt)
+    # User-provided prompt
+    prompt = st.text_input("Ask a question or request a summary")
 
-    # Replace OpenAI model with Hugging Face GPT-2 model
-    tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
-    model = GPT2LMHeadModel.from_pretrained("gpt2")
+    if st.button("Generate Summary"):
+        if prompt:
+            input_text = f"Document: {document}\nQuestion: {prompt}"
+        else:
+            input_text = f"Document: {document}"
 
-    # Tokenize the prompt and generate a response
-    input_ids = tokenizer.encode(prompt, return_tensors="pt")
-    output = model.generate(input_ids, max_length=100, num_beams=5, no_repeat_ngram_size=2, top_k=50, top_p=0.95)
-    response = tokenizer.decode(output[0], skip_special_tokens=True)
-
-    st.write(response)
-    message = {"role": "assistant", "content": response}
-    st.session_state.messages.append(message)
+        # Generate summary
+        summary = summarizer(input_text, max_length=150, min_length=50, length_penalty=2.0, num_beams=4)[0]["summary"]
+        st.write("### Summary")
+        st.write(summary)
