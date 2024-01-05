@@ -1,45 +1,55 @@
 import streamlit as st
-import pandas as pd
-from langchain.chat_models import ChatOpenAI
-from langchain.agents import create_pandas_dataframe_agent
-from langchain.agents.agent_types import AgentType
+from llama_index import VectorStoreIndex, ServiceContext, Document
+from llama_index.llms import OpenAI
+from transformers import GPT2LMHeadModel, GPT2Tokenizer
 
-# Page title
-st.set_page_config(page_title='🦜🔗 Ask the App')
-st.title('🦜🔗 Ask the Data App')
+# Set Streamlit page configuration
+st.set_page_config(
+    page_title="Chat with the Streamlit docs, powered by LlamaIndex",
+    page_icon="🦙",
+    layout="centered",
+    initial_sidebar_state="auto",
+    menu_items=None
+)
 
-# Load CSV file
-def load_csv(input_csv):
-  df = pd.read_csv(input_csv)
-  with st.expander('See DataFrame'):
-    st.write(df)
-  return df
+# Set up initial chat messages history
+if "messages" not in st.session_state.keys():
+    st.session_state.messages = [
+        {"role": "assistant", "content": "Ask me a question about Streamlit's open-source Python library!"}
+    ]
 
-# Generate LLM response
-def generate_response(csv_file, input_query):
-  llm = ChatOpenAI(model_name='gpt-3.5-turbo-0613', temperature=0.2, openai_api_key=openai_key)
-  df = load_csv(csv_file)
-  # Create Pandas DataFrame Agent
-  agent = create_pandas_dataframe_agent(llm, df, verbose=True, agent_type=AgentType.OPENAI_FUNCTIONS)
-  # Perform Query using the Agent
-  response = agent.run(input_query)
-  return st.success(response)
+# Function to load data and create the index
+@st.cache_resource(show_spinner=False)
+def load_data():
+    with st.spinner(text="Loading and indexing the Streamlit docs – hang tight! This should take 1-2 minutes."):
+        reader = SimpleDirectoryReader(input_dir="./data", recursive=True)
+        docs = reader.load_data()
+        service_context = ServiceContext.from_defaults(llm=OpenAI(model="text-davinci-003", temperature=0.5, system_prompt="You are an expert on the Streamlit Python library and your job is to answer technical questions. Assume that all questions are related to the Streamlit Python library. Keep your answers technical and based on facts – do not hallucinate features."))
+        index = VectorStoreIndex.from_documents(docs, service_context=service_context)
+        return index
 
-# Input widgets
-uploaded_file = st.file_uploader('Upload a CSV file', type=['csv'])
-question_list = [
-  'How many rows are there?',
-  'What is the range of values for MolWt with logS greater than 0?',
-  'How many rows have MolLogP value greater than 0.',
-  'Other']
-query_text = st.selectbox('Select an example query:', question_list, disabled=not uploaded_file)
-openai_api_key = st.text_input('OpenAI API Key', type='password', disabled=not (uploaded_file and query_text))
+# Load the data and create the index
+index = load_data()
 
-# App logic
-if query_text is 'Other':
-  query_text = st.text_input('Enter your query:', placeholder = 'Enter query here ...', disabled=not uploaded_file)
-if not openai_api_key.startswith('sk-'):
-  st.warning('Please enter your OpenAI API key!', icon='⚠')
-if openai_api_key.startswith('sk-') and (uploaded_file is not None):
-  st.header('Output')
-  generate_response(uploaded_file, query_text)
+# Initialize the chat engine
+if "chat_engine" not in st.session_state.keys():
+    st.session_state.chat_engine = index.as_chat_engine(chat_mode="condense_question", verbose=True)
+
+# User-provided prompt
+if prompt := st.text_input("Your question"):
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    with st.chat_message("user"):
+        st.write(prompt)
+
+    # Replace OpenAI model with Hugging Face GPT-2 model
+    tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
+    model = GPT2LMHeadModel.from_pretrained("gpt2")
+
+    # Tokenize the prompt and generate a response
+    input_ids = tokenizer.encode(prompt, return_tensors="pt")
+    output = model.generate(input_ids, max_length=100, num_beams=5, no_repeat_ngram_size=2, top_k=50, top_p=0.95)
+    response = tokenizer.decode(output[0], skip_special_tokens=True)
+
+    st.write(response)
+    message = {"role": "assistant", "content": response}
+    st.session_state.messages.append(message)
